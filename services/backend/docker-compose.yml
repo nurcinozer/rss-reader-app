@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:13.7-alpine
+    container_name: rssreader_db
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=newuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=rss-reader-db
+  cache:
+    image: redis:6.2.7-alpine
+    container_name: rssreader_cache
+    ports:
+      - '6379:6379'
