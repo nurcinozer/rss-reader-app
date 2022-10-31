@@ -59,13 +59,13 @@ export class FeedController {
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async getTodoById(@Param('id') id: number) {
+  async getFeedById(@Param('id') id: number) {
     return await this.feedService.getFeedById(id);
   }
 
   @Patch('/:id')
   @UseGuards(JwtAuthGuard)
-  async updateTodoById(@Param('id') id: number, @Body() dto: UpdateFeedDto) {
+  async updateFeedById(@Param('id') id: number, @Body() dto: UpdateFeedDto) {
     await this.cacheManager.reset();
     return await this.feedService.updateFeedById(id, dto);
   }
