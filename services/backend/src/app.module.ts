@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { AuthModule } from '@/auth/auth.module';
 import { UserModule } from '@/user/user.module';
+import { FeedModule } from './feed/feed.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -26,6 +27,7 @@ import * as redisStore from 'cache-manager-redis-store';
     PrismaModule,
     AuthModule,
     UserModule,
+    FeedModule,
   ],
   controllers: [],
   providers: [
