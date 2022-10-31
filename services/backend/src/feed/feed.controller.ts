@@ -29,7 +29,7 @@ export class FeedController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
-  async createTodo(
+  async createFeed(
     @RequestUser() user: User,
     @Body() dto: CreateFeedDto,
   ): Promise<Feed> {
