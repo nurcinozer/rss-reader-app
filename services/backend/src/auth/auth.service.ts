@@ -58,10 +58,8 @@ export class AuthService {
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...rest } = saved;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { user, ...auth } = rest;
+      const { ...rest } = saved;
+      const { ...auth } = rest;
 
       return auth;
     } catch (e) {

@@ -25,6 +25,33 @@ model User {
   auth      Auth?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  feeds     Feed[]
 
   @@index(email)
+}
+model Feed {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  link      String   @db.VarChar(255)
+  feedItems FeedItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index(title)
+  @@index(link)
+}
+
+model FeedItem {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  link      String   @db.VarChar(255)
+  feedId    Int
+  feed      Feed     @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index(title)
+  @@index(link)
 }
