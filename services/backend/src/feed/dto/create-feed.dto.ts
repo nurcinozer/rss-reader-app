@@ -6,11 +6,5 @@ export class CreateFeedDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(256)
-  title!: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(256)
   link!: string;
 }
