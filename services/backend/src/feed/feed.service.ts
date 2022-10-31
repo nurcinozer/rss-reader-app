@@ -14,21 +14,22 @@ export class FeedService {
   }
 
   async createFeed(user: User, dto: CreateFeedDto): Promise<Feed> {
-    const feed = await this.parser.parseURL(dto.link);
-
-    // TODO: find and verify RSS Feeds
-
-    return await this.prisma.feed.create({
-      data: {
-        user: {
-          connect: {
-            email: user.email,
+    try {
+      const feed = await this.parser.parseURL(dto.link);
+      return await this.prisma.feed.create({
+        data: {
+          user: {
+            connect: {
+              email: user.email,
+            },
           },
+          link: dto.link,
+          title: feed.title as string,
         },
-        link: dto.link,
-        title: feed.title as string,
-      },
-    });
+      });
+    } catch {
+      throw new Error('Invalid feed url');
+    }
   }
 
   async getFeeds(user: User): Promise<Feed[]> {
