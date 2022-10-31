@@ -10,7 +10,8 @@ datasource db {
 }
 
 model Auth {
-  email     String   @id
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
   password  String   @db.VarChar(256)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int      @unique
@@ -29,15 +30,16 @@ model User {
 
   @@index(email)
 }
+
 model Feed {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(255)
-  link      String   @db.VarChar(255)
+  id        Int        @id @default(autoincrement())
+  title     String     @db.VarChar(255)
+  link      String     @db.VarChar(255)
   feedItems FeedItem[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index(title)
   @@index(link)
