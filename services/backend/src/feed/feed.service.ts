@@ -3,12 +3,21 @@ import { Injectable } from '@nestjs/common';
 import { Feed, User } from '@prisma/client';
 import { UpdateFeedDto } from '@/feed/dto';
 import { CreateFeedDto } from './dto/create-feed.dto';
+import Parser = require('rss-parser');
 
 @Injectable()
 export class FeedService {
-  constructor(private readonly prisma: PrismaService) {}
+  parser: Parser;
+
+  constructor(private readonly prisma: PrismaService) {
+    this.parser = new Parser();
+  }
 
   async createFeed(user: User, dto: CreateFeedDto): Promise<Feed> {
+    const feed = await this.parser.parseURL(dto.link);
+
+    // TODO: find and verify RSS Feeds
+
     return await this.prisma.feed.create({
       data: {
         user: {
@@ -16,8 +25,8 @@ export class FeedService {
             email: user.email,
           },
         },
-        title: dto.title,
         link: dto.link,
+        title: feed.title as string,
       },
     });
   }

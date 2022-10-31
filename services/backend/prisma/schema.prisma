@@ -49,6 +49,7 @@ model FeedItem {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(255)
   link      String   @db.VarChar(255)
+  content   String   @db.Text
   feedId    Int
   feed      Feed     @relation(name: "FeedItems", fields: [feedId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
