@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Feed, FeedItem, User } from '@prisma/client';
 import { CreateFeedDto } from './dto/create-feed.dto';
 import Parser = require('rss-parser');
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Injectable()
 export class FeedService {
@@ -77,12 +78,21 @@ export class FeedService {
     }
   }
 
-  async getFeedItemsByFeedId(id: number): Promise<FeedItem[]> {
-    return await this.prisma.feedItem.findMany({
+  async getFeedItemsByFeedId(
+    id: number,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<FeedItem[]> {
+    const { page = 1, size = 10 } = paginationQuery;
+
+    const result = await this.prisma.feedItem.findMany({
       where: {
         feedId: id,
       },
+      skip: (page - 1) * size,
+      take: size,
     });
+
+    return result;
   }
 
   async deleteFeed(id: number): Promise<Feed> {

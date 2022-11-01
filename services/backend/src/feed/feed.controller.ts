@@ -7,8 +7,8 @@ import {
   Get,
   Inject,
   Param,
-  Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiConsumes, ApiProduces, ApiTags } from '@nestjs/swagger';
@@ -17,6 +17,7 @@ import { User as RequestUser } from '@/user/decorators';
 import { Feed, FeedItem, User } from '@prisma/client';
 import { CreateFeedDto } from './dto';
 import { Cache } from 'cache-manager';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @ApiTags('feed')
 @ApiConsumes('application/json')
@@ -72,7 +73,11 @@ export class FeedController {
 
   @Get('/:id/feed-items')
   @UseGuards(JwtAuthGuard)
-  async getFeedItems(@Param('id') id: number): Promise<FeedItem[]> {
-    return await this.feedService.getFeedItemsByFeedId(id);
+  async getFeedItems(
+    @Param('id') id: number,
+    @Query() paginationQuery: PaginationQueryDto,
+  ): Promise<FeedItem[]> {
+    return await this.feedService.getFeedItemsByFeedId(id, paginationQuery);
+    // localhost:3000/feed/1/feed-items?page=1&limit=10
   }
 }
