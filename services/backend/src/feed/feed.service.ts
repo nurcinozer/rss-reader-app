@@ -1,7 +1,6 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { Feed, User } from '@prisma/client';
-import { UpdateFeedDto } from '@/feed/dto';
+import { Feed, FeedItem, User } from '@prisma/client';
 import { CreateFeedDto } from './dto/create-feed.dto';
 import Parser = require('rss-parser');
 
@@ -15,8 +14,8 @@ export class FeedService {
 
   async createFeed(user: User, dto: CreateFeedDto): Promise<Feed> {
     try {
-      const feed = await this.parser.parseURL(dto.link);
-      return await this.prisma.feed.create({
+      const feedInfo = await this.parser.parseURL(dto.link);
+      const feed = await this.prisma.feed.create({
         data: {
           user: {
             connect: {
@@ -24,9 +23,11 @@ export class FeedService {
             },
           },
           link: dto.link,
-          title: feed.title as string,
+          title: feedInfo.title as string,
         },
       });
+      await this.updateFeedItem(feed);
+      return feed;
     } catch {
       throw new Error('Invalid feed url');
     }
@@ -48,13 +49,38 @@ export class FeedService {
     });
   }
 
-  async updateFeedById(id: number, dto: UpdateFeedDto): Promise<Feed> {
-    return await this.prisma.feed.update({
+  async updateFeedItem(feed: Feed): Promise<void> {
+    const rssFeed = await this.parser.parseURL(feed.link);
+
+    for (const item of rssFeed.items) {
+      await this.prisma.feedItem.create({
+        data: {
+          feed: {
+            connect: {
+              id: feed.id,
+            },
+          },
+          title: item.title as string,
+          link: item.link as string,
+          content: item.content as string,
+        },
+      });
+
+      await this.prisma.feed.update({
+        where: {
+          id: feed.id,
+        },
+        data: {
+          title: rssFeed.title as string,
+        },
+      });
+    }
+  }
+
+  async getFeedItemsByFeedId(id: number): Promise<FeedItem[]> {
+    return await this.prisma.feedItem.findMany({
       where: {
-        id,
-      },
-      data: {
-        ...dto,
+        feedId: id,
       },
     });
   }

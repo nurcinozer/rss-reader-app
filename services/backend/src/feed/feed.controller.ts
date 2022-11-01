@@ -14,8 +14,8 @@ import {
 import { ApiConsumes, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { FeedService } from './feed.service';
 import { User as RequestUser } from '@/user/decorators';
-import { Feed, User } from '@prisma/client';
-import { CreateFeedDto, UpdateFeedDto } from './dto';
+import { Feed, FeedItem, User } from '@prisma/client';
+import { CreateFeedDto } from './dto';
 import { Cache } from 'cache-manager';
 
 @ApiTags('feed')
@@ -63,17 +63,16 @@ export class FeedController {
     return await this.feedService.getFeedById(id);
   }
 
-  @Patch('/:id')
-  @UseGuards(JwtAuthGuard)
-  async updateFeedById(@Param('id') id: number, @Body() dto: UpdateFeedDto) {
-    await this.cacheManager.reset();
-    return await this.feedService.updateFeedById(id, dto);
-  }
-
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async deleteFeed(@Param('id') id: number): Promise<Feed> {
     await this.cacheManager.reset();
     return await this.feedService.deleteFeed(id);
+  }
+
+  @Get('/:id/feed-items')
+  @UseGuards(JwtAuthGuard)
+  async getFeedItems(@Param('id') id: number): Promise<FeedItem[]> {
+    return await this.feedService.getFeedItemsByFeedId(id);
   }
 }
