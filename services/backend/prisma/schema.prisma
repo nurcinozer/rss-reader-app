@@ -54,6 +54,8 @@ model FeedItem {
   feed      Feed     @relation(name: "FeedItems", fields: [feedId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isRead    Boolean  @default(false)
+  isStarred Boolean  @default(false)
 
   @@index(title)
   @@index(link)
