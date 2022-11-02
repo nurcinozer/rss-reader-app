@@ -4,6 +4,7 @@ import {
   UseGuards,
   CACHE_MANAGER,
   Inject,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiConsumes, ApiProduces } from '@nestjs/swagger';
 import { Bookmark, User } from '@prisma/client';
@@ -11,6 +12,7 @@ import { JwtAuthGuard } from '@/auth/guards';
 import { BookmarkService } from './bookmark.service';
 import { User as RequestUser } from '@/user/decorators';
 import { Cache } from 'cache-manager';
+import { PaginationQueryDto } from '@/feed/dto/pagination-query.dto';
 
 @ApiTags('bookmark')
 @ApiConsumes('application/json')
@@ -27,7 +29,10 @@ export class BookmarkController {
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
-  async getFeeds(@RequestUser() user: User): Promise<Bookmark[]> {
+  async getFeeds(
+    @RequestUser() user: User,
+    @Query() paginationQuery: PaginationQueryDto,
+  ): Promise<Bookmark[]> {
     const bookmarks = await this.cacheManager.get<Bookmark[]>(
       `bookmarks:${user.id}`,
     );
@@ -36,7 +41,10 @@ export class BookmarkController {
       return bookmarks;
     }
 
-    const newBookmarks = await this.bookmarkService.getBookmarks(user);
+    const newBookmarks = await this.bookmarkService.getBookmarks(
+      user,
+      paginationQuery,
+    );
 
     await this.cacheManager.set(`feeds:${user.id}`, newBookmarks);
 
