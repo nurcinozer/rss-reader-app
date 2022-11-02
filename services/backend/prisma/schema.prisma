@@ -20,13 +20,14 @@ model Auth {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique() @db.VarChar(255)
-  fullName  String   @db.VarChar(64)
+  id        Int        @id @default(autoincrement())
+  email     String     @unique() @db.VarChar(255)
+  fullName  String     @db.VarChar(64)
   auth      Auth?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  feeds     Feed[]   @relation(name: "UserFeeds")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  feeds     Feed[]     @relation(name: "UserFeeds")
+  bookmarks Bookmark[] @relation(name: "UserBookmarks")
 
   @@index(email)
 }
@@ -46,17 +47,31 @@ model Feed {
 }
 
 model FeedItem {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(255)
-  link      String   @db.VarChar(255)
-  content   String   @db.Text
-  feedId    Int
-  feed      Feed     @relation(name: "FeedItems", fields: [feedId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isRead    Boolean  @default(false)
-  isStarred Boolean  @default(false)
+  id           Int       @id @default(autoincrement())
+  title        String    @default("") @db.VarChar(255)
+  link         String    @default("") @db.VarChar(255)
+  content      String    @default("") @db.Text
+  feedId       Int
+  feed         Feed      @relation(name: "FeedItems", fields: [feedId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  isRead       Boolean   @default(false)
+  bookmark     Bookmark? @relation(name: "BookmarkFeedItem")
+  isBookmarked Boolean   @default(false)
 
   @@index(title)
   @@index(link)
+}
+
+model Bookmark {
+  id         Int      @id @default(autoincrement())
+  title      String   @default("") @db.VarChar(255)
+  link       String   @default("") @db.VarChar(255)
+  content    String   @default("") @db.Text
+  feedItem   FeedItem @relation(name: "BookmarkFeedItem", fields: [feedItemId], references: [id], onDelete: Cascade)
+  feedItemId Int      @unique
+  user       User     @relation(name: "UserBookmarks", fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 }

@@ -7,6 +7,7 @@ import { PrismaModule } from '@/prisma/prisma.module';
 import { AuthModule } from '@/auth/auth.module';
 import { UserModule } from '@/user/user.module';
 import { FeedModule } from '@/feed/feed.module';
+import { BookmarkModule } from '@/bookmark/bookmark.module';
 import * as redisStore from 'cache-manager-redis-store';
 import CustomHttpCacheInterceptor from '@/feed/interceptors/custom-http-cache.interceptor';
 
@@ -29,6 +30,7 @@ import CustomHttpCacheInterceptor from '@/feed/interceptors/custom-http-cache.in
     AuthModule,
     UserModule,
     FeedModule,
+    BookmarkModule,
   ],
   controllers: [],
   providers: [

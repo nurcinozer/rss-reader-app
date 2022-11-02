@@ -95,11 +95,127 @@ export class FeedService {
     return result;
   }
 
+  async getFeedItemById(id: number): Promise<FeedItem | null> {
+    return await this.prisma.feedItem.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
   async deleteFeed(id: number): Promise<Feed> {
     return await this.prisma.feed.delete({
       where: {
         id,
       },
     });
+  }
+
+  // add feed item to bookmark with transaction
+  // async addFeedItemToBookmarkWithTransaction(
+  //   user: User,
+  //   feedItem: FeedItem,
+  // ): Promise<void> {
+  //   await this.prisma.$transaction([
+  //     this.prisma.bookmark.create({
+  //       data: {
+  //         user: {
+  //           connect: {
+  //             email: user.email,
+  //           },
+  //         },
+  //         feedItem: {
+  //           connect: {
+  //             id: feedItem.id,
+  //           },
+  //         },
+  //       },
+  //     }),
+  //     this.prisma.feedItem.update({
+  //       where: {
+  //         id: feedItem.id,
+  //       },
+  //       data: {
+  //         isBookmarked: true,
+  //       },
+  //     }),
+  //   ]);
+  // }
+
+  async addFeedItemToBookmark(
+    feedItemId: number,
+    userId: number,
+  ): Promise<FeedItem> {
+    const feedItem = await this.prisma.feedItem.findUnique({
+      where: {
+        id: feedItemId,
+      },
+    });
+
+    if (feedItem) {
+      await this.prisma.$transaction([
+        this.prisma.bookmark.create({
+          data: {
+            title: feedItem.title,
+            link: feedItem.link,
+            content: feedItem.content,
+            user: {
+              connect: {
+                id: userId,
+              },
+            },
+            feedItem: {
+              connect: {
+                id: feedItemId,
+              },
+            },
+          },
+        }),
+        this.prisma.feedItem.update({
+          where: {
+            id: feedItem.id,
+          },
+          data: {
+            isBookmarked: true,
+          },
+        }),
+      ]);
+      return feedItem;
+    }
+
+    throw new Error('Feed item not found');
+  }
+
+  async removeFeedItemFromBookmark(
+    feedItemId: number,
+    userId: number,
+  ): Promise<FeedItem> {
+    const feedItem = await this.prisma.feedItem.findUnique({
+      where: {
+        id: feedItemId,
+      },
+    });
+
+    if (feedItem) {
+      await this.prisma.$transaction([
+        this.prisma.bookmark.deleteMany({
+          where: {
+            feedItemId,
+            userId,
+          },
+        }),
+        this.prisma.feedItem.update({
+          where: {
+            id: feedItem.id,
+          },
+          data: {
+            isBookmarked: false,
+          },
+        }),
+      ]);
+      return feedItem;
+    }
+
+    throw new Error('Feed item not found');
   }
 }

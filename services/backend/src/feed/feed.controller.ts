@@ -78,6 +78,67 @@ export class FeedController {
     @Query() paginationQuery: PaginationQueryDto,
   ): Promise<FeedItem[]> {
     return await this.feedService.getFeedItemsByFeedId(id, paginationQuery);
-    // localhost:3000/feed/1/feed-items?page=1&limit=10
+  }
+
+  @Get('/:id/feed-items/:feedItemId')
+  @UseGuards(JwtAuthGuard)
+  async getFeedItemsByFeedId(
+    @Param('id') id: number,
+    @Param('feedItemId') feedItemId: number,
+  ): Promise<FeedItem | null> {
+    const feedItem = await this.feedService.getFeedItemById(feedItemId);
+
+    if (!feedItem) {
+      return null;
+    }
+
+    if (feedItem.feedId !== id) {
+      return null;
+    }
+
+    return feedItem;
+  }
+
+  @Post('/:id/feed-items/:feedItemId/bookmark')
+  @UseGuards(JwtAuthGuard)
+  async addFeedItemToBookmark(
+    @RequestUser() user: User,
+    @Param('id') id: number,
+    @Param('feedItemId') feedItemId: number,
+  ): Promise<FeedItem | null> {
+    const feedItem = await this.feedService.getFeedItemById(feedItemId);
+
+    if (!feedItem) {
+      return null;
+    }
+
+    if (feedItem.feedId !== id) {
+      return null;
+    }
+
+    return await this.feedService.addFeedItemToBookmark(feedItem.id, user.id);
+  }
+
+  @Delete('/:id/feed-items/:feedItemId/bookmark')
+  @UseGuards(JwtAuthGuard)
+  async removeFeedItemFromBookmark(
+    @RequestUser() user: User,
+    @Param('id') id: number,
+    @Param('feedItemId') feedItemId: number,
+  ): Promise<FeedItem | null> {
+    const feedItem = await this.feedService.getFeedItemById(feedItemId);
+
+    if (!feedItem) {
+      return null;
+    }
+
+    if (feedItem.feedId !== id) {
+      return null;
+    }
+
+    return await this.feedService.removeFeedItemFromBookmark(
+      feedItem.id,
+      user.id,
+    );
   }
 }
