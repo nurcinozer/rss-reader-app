@@ -111,37 +111,6 @@ export class FeedService {
     });
   }
 
-  // add feed item to bookmark with transaction
-  // async addFeedItemToBookmarkWithTransaction(
-  //   user: User,
-  //   feedItem: FeedItem,
-  // ): Promise<void> {
-  //   await this.prisma.$transaction([
-  //     this.prisma.bookmark.create({
-  //       data: {
-  //         user: {
-  //           connect: {
-  //             email: user.email,
-  //           },
-  //         },
-  //         feedItem: {
-  //           connect: {
-  //             id: feedItem.id,
-  //           },
-  //         },
-  //       },
-  //     }),
-  //     this.prisma.feedItem.update({
-  //       where: {
-  //         id: feedItem.id,
-  //       },
-  //       data: {
-  //         isBookmarked: true,
-  //       },
-  //     }),
-  //   ]);
-  // }
-
   async addFeedItemToBookmark(
     feedItemId: number,
     userId: number,
